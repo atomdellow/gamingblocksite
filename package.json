@@ -4,10 +4,13 @@
   "description": "A blog site dedicated to console gaming",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "generate-secret": "node utils/generateSecret.js",
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "staging": "cross-env NODE_ENV=staging node server.js",
+    "start": "cross-env NODE_ENV=production node server.js",
+    "client": "npm start --prefix client",
+    "dev:full": "concurrently \"npm run dev\" \"npm run client\"",
     "server": "nodemon server.js",
-    "client": "npm run serve --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install-client": "cd client && npm install",
     "build": "cd client && npm run build",
     "heroku-postbuild": "npm run install-client && npm run build"

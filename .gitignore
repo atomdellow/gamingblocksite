@@ -41,6 +41,9 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+/node_modules
+/.pnp
+.pnp.js
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
@@ -78,6 +81,12 @@ web_modules/
 .env.test.local
 .env.production.local
 .env.local
+.env
+.env.development
+.env.staging
+.env.production
+.env.local
+.env.*.local
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -90,9 +99,11 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+/build
 
 # Gatsby files
 .cache/
+/dist
 # Comment in the public line in if your project uses Gatsby and not Next.js
 # https://nextjs.org/blog/next-9-1#public-directory-support
 # public
@@ -134,3 +145,21 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# build output
+/dist
+
+# testing
+/coverage
+
+# misc
+.DS_Store

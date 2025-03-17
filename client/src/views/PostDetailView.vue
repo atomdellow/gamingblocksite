@@ -36,8 +36,10 @@
         <img :src="getImageUrl(post.featuredImage)" :alt="post.title">
       </div>
       
-      <!-- Fixed v-html error by removing child elements -->
-      <div class="post-content" v-html="post.content"></div>
+      <!-- Replace v-html with RichTextContent component -->
+      <div class="post-content">
+        <RichTextContent :content="post.content" />
+      </div>
       
       <div class="post-tags" v-if="post.tags && post.tags.length > 0">
         <div class="tags-title">Tags:</div>
@@ -73,9 +75,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePostsStore } from '../stores/posts'
 import { useAuthStore } from '../stores/auth'
+import RichTextContent from '../components/posts/RichTextContent.vue'
 
 export default {
   name: 'PostDetailView',
+  components: {
+    RichTextContent
+  },
   
   setup() {
     const route = useRoute()
