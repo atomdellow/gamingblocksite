@@ -16,9 +16,10 @@ const app = express();
 
 // CORS configuration based on environment
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://your-production-domain.com'
-    : ['http://localhost:5173', 'https://gbs-staging.herokuapp.com'],
+  // removed Production version. 
+  origin: process.env.NODE_ENV === 'staging' 
+    ? 'https://gbs-staging.herokuapp.com'
+    : ['http://localhost:5173'],
   credentials: true
 };
 
