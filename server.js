@@ -5,15 +5,25 @@ const connectDB = require('./config/db');
 const path = require('path');
 // Gaming Blog Site Server
 // Load env vars
-dotenv.config();
+dotenv.config({
+  path: `.env.${process.env.NODE_ENV}`
+});
 
 // Connect to database
 connectDB();
 
 const app = express();
 
+// CORS configuration based on environment
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://your-production-domain.com'
+    : ['http://localhost:5173', 'https://gbs-staging.herokuapp.com'],
+  credentials: true
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Mount routes
@@ -23,7 +33,7 @@ app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
 
 // Serve static assets if in production
-if (process.env.NODE_ENV === 'production') {
+if (['production', 'staging'].includes(process.env.NODE_ENV)) {
   app.use(express.static('client/dist'));
   
   app.get('*', (req, res) => {
@@ -33,4 +43,5 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+app.listen(PORT, () => console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
