@@ -3,7 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const path = require('path');
-// Gaming Blog Site Server
+// Gaming Blog Site Server 2
+
 // Load env vars
 dotenv.config({
   path: `.env.${process.env.NODE_ENV}`
