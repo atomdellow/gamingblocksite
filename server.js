@@ -17,7 +17,9 @@ const app = express();
 
 // CORS configuration based on environment
 const corsOptions = {
-  origin: ['https://gbs-staging-3474ded0ac56.herokuapp.com', 'http://localhost:5173'],
+  origin: process.env.NODE_ENV === 'development'
+    ? 'http://localhost:5173'
+    : 'https://gbs-staging-3474ded0ac56.herokuapp.com',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
