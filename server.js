@@ -8,7 +8,7 @@ const path = require('path');
 dotenv.config({
   path: `.env.${process.env.NODE_ENV}`
 });
-
+// Staging Version
 // Connect to database
 connectDB();
 
