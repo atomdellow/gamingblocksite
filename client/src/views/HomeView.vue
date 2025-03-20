@@ -1,14 +1,37 @@
 <template>
   <div class="home">
-    <!-- Keep existing welcome-section -->
     <div class="welcome-section">
-      <!-- ... your existing welcome section code ... -->
+      <h1>Welcome to the Console Gaming Blog</h1>
+      <p>Your source for console gaming news, reviews, and discussions.</p>
+      
+      <!-- Add Create Post CTA for logged-in users -->
+      <div v-if="isLoggedIn" class="create-post-cta">
+        <router-link to="/create-post" class="create-post-button">
+          <span>+</span> Create New Post
+        </router-link>
+      </div>
     </div>
     
-    <!-- Keep existing filter-section -->
+    <!-- Post filtering options -->
     <div class="filter-section">
-      <!-- ... your existing filter section code ... -->
+      <div class="search-bar">
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="Search posts..."
+          @input="handleSearch"
+        />
+      </div>
+      <div class="category-filter">
+        <select v-model="selectedCategory" @change="handleCategoryChange">
+          <option value="">All Categories</option>
+          <option v-for="category in categories" :key="category._id" :value="category._id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
     </div>
+   
     
     <!-- Update posts display section -->
     <div class="featured-posts">

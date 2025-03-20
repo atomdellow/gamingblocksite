@@ -12,14 +12,16 @@
       <div class="post-header">
         <h1>{{ post.title }}</h1>
         <div class="post-meta">
-          <div class="post-category">
+          <!-- Add v-if check for category -->
+          <div v-if="post.category" class="post-category">
             <router-link :to="`/category/${post.category.slug}`">
               {{ post.category.name }}
             </router-link>
           </div>
           
+          <!-- Add null check for author -->
           <div class="post-author">
-            By {{ post.author.username }}
+            By {{ getAuthorName(post) }}
           </div>
           
           <div class="post-date">
@@ -118,14 +120,29 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options)
     }
 
+    const getAuthorName = (post) => {
+      return post?.author?.username || 'Anonymous'
+    }
+
     const fetchPost = async () => {
       loading.value = true
       error.value = ''
       
       try {
-        post.value = await postsStore.fetchPost(postId.value)
+        const response = await postsStore.fetchPost(postId.value)
+        // Normalize post data
+        post.value = {
+          ...response,
+          category: response.category || null,
+          author: response.author || { username: 'Anonymous' },
+          likes: Array.isArray(response.likes) ? response.likes : [],
+          comments: Array.isArray(response.comments) ? response.comments : [],
+          tags: Array.isArray(response.tags) ? response.tags : []
+        }
       } catch (err) {
+        console.error('Error fetching post:', err)
         error.value = 'Failed to load post. It might have been deleted or may not exist.'
+        post.value = null
       } finally {
         loading.value = false
       }
@@ -173,6 +190,7 @@ export default {
       isLiked,
       getImageUrl,
       formatDate,
+      getAuthorName, // Add this to return
       likePost,
       confirmDelete,
       deletePost
