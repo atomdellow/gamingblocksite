@@ -1,38 +1,16 @@
 <template>
   <div class="home">
+    <!-- Keep existing welcome-section -->
     <div class="welcome-section">
-      <h1>Welcome to the Console Gaming Blog</h1>
-      <p>Your source for console gaming news, reviews, and discussions.</p>
-      
-      <!-- Add Create Post CTA for logged-in users -->
-      <div v-if="isLoggedIn" class="create-post-cta">
-        <router-link to="/create-post" class="create-post-button">
-          <span>+</span> Create New Post
-        </router-link>
-      </div>
+      <!-- ... your existing welcome section code ... -->
     </div>
     
-    <!-- Post filtering options -->
+    <!-- Keep existing filter-section -->
     <div class="filter-section">
-      <div class="search-bar">
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          placeholder="Search posts..."
-          @input="handleSearch"
-        />
-      </div>
-      <div class="category-filter">
-        <select v-model="selectedCategory" @change="handleCategoryChange">
-          <option value="">All Categories</option>
-          <option v-for="category in categories" :key="category._id" :value="category._id">
-            {{ category.name }}
-          </option>
-        </select>
-      </div>
+      <!-- ... your existing filter section code ... -->
     </div>
     
-    <!-- Display posts -->
+    <!-- Update posts display section -->
     <div class="featured-posts">
       <h2>Latest Posts</h2>
       <div v-if="loading" class="loading">Loading posts...</div>
@@ -54,7 +32,8 @@
               <router-link :to="`/posts/${post._id}`">{{ post.title }}</router-link>
             </h3>
             <div class="post-meta">
-              <span class="post-author">By {{ post.author.username || 'Anonymous' }}</span>
+              <!-- Update this line to handle null author -->
+              <span class="post-author">By {{ getAuthorName(post) }}</span>
               <span class="post-date">{{ formatDate(post.createdAt) }}</span>
             </div>
             <div class="post-excerpt" v-if="post.content">
@@ -71,32 +50,9 @@
         </div>
       </div>
       
-      <!-- Pagination -->
+      <!-- Keep existing pagination -->
       <div v-if="totalPages > 1" class="pagination">
-        <button 
-          :disabled="currentPage === 1" 
-          @click="changePage(currentPage - 1)"
-          class="pagination-button"
-        >
-          Previous
-        </button>
-        <div class="page-numbers">
-          <button 
-            v-for="page in pageNumbers" 
-            :key="page" 
-            :class="['page-number', { active: page === currentPage }]"
-            @click="changePage(page)"
-          >
-            {{ page }}
-          </button>
-        </div>
-        <button 
-          :disabled="currentPage === totalPages" 
-          @click="changePage(currentPage + 1)"
-          class="pagination-button"
-        >
-          Next
-        </button>
+        <!-- ... your existing pagination code ... -->
       </div>
     </div>
   </div>
@@ -112,123 +68,129 @@ export default {
   name: 'HomeView',
   
   setup() {
-    // Stores
-    const postsStore = usePostsStore();
-    const categoriesStore = useCategoriesStore();
-    const authStore = useAuthStore();
+    const postsStore = usePostsStore()
+    const categoriesStore = useCategoriesStore()
+    const authStore = useAuthStore()
     
     // Reactive state
-    const posts = ref([]);
-    const categories = ref([]);
-    const loading = ref(true);
-    const error = ref(null);
-    const currentPage = ref(1);
-    const totalPages = ref(1);
-    const searchQuery = ref('');
-    const selectedCategory = ref('');
+    const posts = ref([])
+    const categories = ref([])
+    const loading = ref(true)
+    const error = ref(null)
+    const currentPage = ref(1)
+    const totalPages = ref(1)
+    const searchQuery = ref('')
+    const selectedCategory = ref('')
     
     // Computed properties
-    const isLoggedIn = computed(() => authStore.isLoggedIn);
-    
+    const isLoggedIn = computed(() => authStore.isLoggedIn)
     const pageNumbers = computed(() => {
       if (totalPages.value <= 7) {
-        return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+        return Array.from({ length: totalPages.value }, (_, i) => i + 1)
       }
       
       if (currentPage.value <= 3) {
-        return [1, 2, 3, 4, 5, '...', totalPages.value];
+        return [1, 2, 3, 4, 5, '...', totalPages.value]
       }
       
       if (currentPage.value >= totalPages.value - 2) {
-        return [1, '...', totalPages.value - 4, totalPages.value - 3, totalPages.value - 2, totalPages.value - 1, totalPages.value];
+        return [1, '...', totalPages.value - 4, totalPages.value - 3, totalPages.value - 2, totalPages.value - 1, totalPages.value]
       }
       
-      return [1, '...', currentPage.value - 1, currentPage.value, currentPage.value + 1, '...', totalPages.value];
-    });
+      return [1, '...', currentPage.value - 1, currentPage.value, currentPage.value + 1, '...', totalPages.value]
+    })
     
     // Methods
     const fetchPosts = async () => {
-      loading.value = true;
-      error.value = null;
+      loading.value = true
+      error.value = null
       
       try {
         const params = {
           page: currentPage.value,
-          limit: 9  // Show 9 posts per page
-        };
+          limit: 9
+        }
         
-        // Add filters if they exist
         if (searchQuery.value) {
-          params.search = searchQuery.value;
+          params.search = searchQuery.value
         }
         
         if (selectedCategory.value) {
-          params.category = selectedCategory.value;
+          params.category = selectedCategory.value
         }
         
-        const response = await postsStore.fetchPosts(params);
-        posts.value = response.data;
-        totalPages.value = response.totalPages;
+        const response = await postsStore.fetchPosts(params)
+        // Normalize post data before assigning
+        posts.value = response.data.map(post => ({
+          ...post,
+          author: post.author || { username: 'Anonymous' },
+          likes: Array.isArray(post.likes) ? post.likes : [],
+          comments: Array.isArray(post.comments) ? post.comments : [],
+          content: post.content || ''
+        }))
+        totalPages.value = response.totalPages
       } catch (err) {
-        error.value = 'Failed to load posts. Please try again later.';
-        console.error('Error fetching posts:', err);
+        error.value = 'Failed to load posts. Please try again later.'
+        console.error('Error fetching posts:', err)
       } finally {
-        loading.value = false;
+        loading.value = false
       }
-    };
-    // Fetch categories
+    }
+
+    const getAuthorName = (post) => {
+      return post?.author?.username || 'Anonymous'
+    }
+    
+    // Keep your existing methods
     const fetchCategories = async () => {
       try {
-        await categoriesStore.fetchCategories();
-        categories.value = categoriesStore.categories;
+        await categoriesStore.fetchCategories()
+        categories.value = categoriesStore.categories
       } catch (err) {
-        console.error('Error fetching categories:', err);
+        console.error('Error fetching categories:', err)
       }
-    };
+    }
     
     const changePage = (page) => {
-      if (page === '...') return;
-      currentPage.value = page;
-      fetchPosts();
-      // Scroll to top when changing page
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+      if (page === '...') return
+      currentPage.value = page
+      fetchPosts()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
     
     const handleSearch = () => {
-      currentPage.value = 1;
-      fetchPosts();
-    };
+      currentPage.value = 1
+      fetchPosts()
+    }
     
     const handleCategoryChange = () => {
-      currentPage.value = 1;
-      fetchPosts();
-    };
+      currentPage.value = 1
+      fetchPosts()
+    }
     
     const getImageUrl = (image) => {
-      if (image && (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('data:'))) {
-        return image;
+      if (!image) return '/images/default-post.jpg'
+      if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('data:')) {
+        return image
       }
-      return image ? `/uploads/${image}` : '/images/default-post.jpg';
-    };
+      return `/uploads/${image}`
+    }
     
     const formatDate = (dateString) => {
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    };
+      const options = { year: 'numeric', month: 'short', day: 'numeric' }
+      return new Date(dateString).toLocaleDateString(undefined, options)
+    }
     
     const getExcerpt = (content) => {
-      // Remove HTML tags and get plain text
-      const plainText = content.replace(/<[^>]+>/g, '');
-      // Get first 150 characters
-      return plainText.length > 150 
-        ? `${plainText.substring(0, 150)}...` 
-        : plainText;
-    };
+      if (!content) return ''
+      const plainText = content.replace(/<[^>]+>/g, '')
+      return plainText.length > 150 ? `${plainText.substring(0, 150)}...` : plainText
+    }
     
     // Lifecycle hooks
     onMounted(async () => {
-      await Promise.all([fetchPosts(), fetchCategories()]);
-    });
+      await Promise.all([fetchPosts(), fetchCategories()])
+    })
     
     return {
       posts,
@@ -246,8 +208,9 @@ export default {
       handleCategoryChange,
       getImageUrl,
       formatDate,
-      getExcerpt
-    };
+      getExcerpt,
+      getAuthorName
+    }
   }
 }
 </script>
