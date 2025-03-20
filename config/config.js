@@ -34,5 +34,13 @@ module.exports = {
   
   // Cookie settings
   cookieExpire: parseInt(process.env.COOKIE_EXPIRE || (24 * 60 * 60 * 1000)), // 1 day
-  cookieSecure: process.env.COOKIE_SECURE === 'true'
+  cookieSecure: process.env.COOKIE_SECURE === 'true',
+  plugins: [
+    require('webpack').DefinePlugin({
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+      __VUE_PROD_DEVTOOLS__: 'false',
+      __VUE_OPTIONS_API__: 'true',
+      __VUE_PROD_HYDRATION__: 'true'
+    })
+  ]
 };
