@@ -1,15 +1,7 @@
 import { defineStore } from 'pinia'
 import api from '../api/axios'
 
-// Add auth header interceptor
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
+// Remove duplicate interceptor since it's already in axios.js
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')) || null,
@@ -28,14 +20,21 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
+        console.log('Registration attempt for:', userData.email)
         const response = await api.post('/auth/register', userData)
+        
+        if (!response.data?.token || !response.data?.user) {
+          throw new Error('Invalid registration response format')
+        }
+        
         this.token = response.data.token
         this.user = response.data.user
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
         return response.data
       } catch (error) {
-        this.error = error.response?.data?.error || 'Registration failed'
+        console.error('Registration error:', error.response?.data || error.message)
+        this.error = error.response?.data?.message || 'Registration failed'
         throw error
       } finally {
         this.loading = false
@@ -46,20 +45,26 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        console.log('Attempting login to:', api.defaults.baseURL)
+        console.log('Login attempt for:', credentials.email)
         const response = await api.post('/auth/login', credentials)
-        
+        console.log('Login response received')
+
+        if (!response.data?.token || !response.data?.user) {
+          throw new Error('Invalid login response format')
+        }
+
         this.token = response.data.token
         this.user = response.data.user
-        
-        // Store in localStorage
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
-        
         return response.data
       } catch (error) {
+        console.error('Login error:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message
+        })
         this.error = error.response?.data?.message || 'Login failed'
-        console.error('Login error:', error)
         throw error
       } finally {
         this.loading = false
@@ -67,14 +72,23 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async loadUser() {
-      if (!this.token) return
+      if (!this.token) {
+        console.log('No token found, skipping user load')
+        return
+      }
 
       this.loading = true
       try {
         const response = await api.get('/auth/me')
+        
+        if (!response.data?.data) {
+          throw new Error('Invalid user data format')
+        }
+
         this.user = response.data.data
         localStorage.setItem('user', JSON.stringify(response.data.data))
       } catch (error) {
+        console.error('Load user error:', error.response?.data || error.message)
         this.token = null
         this.user = null
         localStorage.removeItem('token')
@@ -85,12 +99,19 @@ export const useAuthStore = defineStore('auth', {
     },
 
     logout() {
-      this.token = null
-      this.user = null
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      // Optional: Call logout API endpoint
-      api.get('/auth/logout').catch(err => console.error('Logout error:', err))
+      try {
+        // Attempt to call logout endpoint
+        api.post('/auth/logout').catch(err => 
+          console.warn('Logout API call failed:', err.message)
+        )
+      } finally {
+        // Always clear local state
+        this.token = null
+        this.user = null
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        console.log('Logged out successfully')
+      }
     }
   }
 })
