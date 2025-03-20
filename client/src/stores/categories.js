@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '../services/api'
+import api from '../api/axios'
 
 // Add auth token to requests
 api.interceptors.request.use(config => {

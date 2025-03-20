@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '../services/api'
+import api from '../api/axios'
 
 // Add auth header interceptor
 api.interceptors.request.use(config => {
