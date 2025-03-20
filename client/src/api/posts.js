@@ -1,6 +1,16 @@
-import api from './axios'
+import { defineStore } from 'pinia'
+import api from '../api/axios'
 
-export default {
+export const usePostsStore = defineStore('posts', {
+  state: () => ({
+    posts: [],
+    post: null,
+    loading: false,
+    error: null,
+    totalPosts: 0,
+    currentPage: 1,
+    totalPages: 1
+  }),
   getPosts(params = {}) {
     return api.get('/posts', { params })
   },
@@ -24,4 +34,4 @@ export default {
   likePost(id) {
     return api.put(`/posts/${id}/like`)
   }
-}
+});

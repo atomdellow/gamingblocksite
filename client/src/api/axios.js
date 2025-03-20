@@ -1,7 +1,8 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
-console.log('API Base URL:', baseURL)
+const baseURL = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging'
+  ? 'https://gbs-staging-3474ded0ac56.herokuapp.com/api'
+  : 'http://localhost:5000/api'
 
 const api = axios.create({
   baseURL,
@@ -10,9 +11,13 @@ const api = axios.create({
   }
 })
 
-// Add request interceptor for debugging
+// Add auth token to requests
 api.interceptors.request.use(config => {
-  console.log('Making request to:', config.url)
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  console.log('API Request to:', config.url)
   return config
 })
 
