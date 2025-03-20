@@ -176,7 +176,7 @@ export default {
         loading.value = false;
       }
     };
-    
+    // Fetch categories
     const fetchCategories = async () => {
       try {
         await categoriesStore.fetchCategories();
