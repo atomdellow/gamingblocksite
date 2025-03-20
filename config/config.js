@@ -21,7 +21,9 @@ module.exports = {
   nodeEnv: process.env.NODE_ENV,
   
   // Add more configurations as needed
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:8080',
+  clientUrl: process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging'
+  ? 'https://gbs-staging-3474ded0ac56.herokuapp.com'
+  : (process.env.CLIENT_URL || 'http://localhost:5173'),
   apiPrefix: process.env.API_PREFIX || '/api',
   
   // JWT token expiration (in seconds)
