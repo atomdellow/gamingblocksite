@@ -1,13 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
-
-// Create API instance with base URL and auth header
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
+import api from '../services/api'
 
 // Add auth token to requests
 api.interceptors.request.use(config => {

@@ -1,13 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
-
-// Create a simple base API for auth operations
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
+import api from '../services/api'
 
 // Add auth header interceptor
 api.interceptors.request.use(config => {
