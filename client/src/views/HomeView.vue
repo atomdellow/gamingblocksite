@@ -54,7 +54,7 @@
               <router-link :to="`/posts/${post._id}`">{{ post.title }}</router-link>
             </h3>
             <div class="post-meta">
-              <span class="post-author">By {{ post.author.username }}</span>
+              <span class="post-author">By {{ post.author.username || 'Anonymous' }}</span>
               <span class="post-date">{{ formatDate(post.createdAt) }}</span>
             </div>
             <div class="post-excerpt" v-if="post.content">
@@ -103,10 +103,10 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
-import { usePostsStore } from '../stores/posts';
-import { useCategoriesStore } from '../stores/categories';
-import { useAuthStore } from '../stores/auth';
+import { ref, onMounted } from 'vue'
+import { usePostsStore } from '@/stores/posts'
+import { useCategoriesStore } from '@/stores/categories'
+import { useAuthStore } from '@/stores/auth'
 
 export default {
   name: 'HomeView',

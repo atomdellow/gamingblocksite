@@ -46,14 +46,20 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
+        console.log('Attempting login to:', api.defaults.baseURL)
         const response = await api.post('/auth/login', credentials)
+        
         this.token = response.data.token
         this.user = response.data.user
+        
+        // Store in localStorage
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
+        
         return response.data
       } catch (error) {
-        this.error = error.response?.data?.error || 'Login failed'
+        this.error = error.response?.data?.message || 'Login failed'
+        console.error('Login error:', error)
         throw error
       } finally {
         this.loading = false
